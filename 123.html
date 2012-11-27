@@ -1,0 +1,259 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>Super_Ball</title>
+  <meta charset="utf-8">
+  <style>
+		canvas {
+			border: 1px solid black;
+		}
+	</style>
+
+ </head> 
+ <body>
+ <canvas id="Balls" width="600" height="600"></canvas>
+ <script>
+ var canvas = document.getElementById('Balls');
+ var context = canvas.getContext('2d');
+		
+ 
+ var circles = [];
+ var circlesCount = 3;
+ var x1=50;
+ var y1=50;
+
+
+function Blocks(width,height,rows,cols){
+
+this.width = width;
+this.height = height;
+this.padding = 2;
+this.rows = rows;
+this.cols = cols;
+
+this.obj1;
+
+ }
+
+
+ Blocks.prototype.draw = function(){
+
+context.fillStyle = "orange";
+context.strokeStyle = "black";
+for(var i=0; i<blocks.rows;i++){
+ 	for(var j=0;j<blocks.cols;j++){
+ 		if(blocks.obj1[i][j]==1){
+ 			context.beginPath();
+ 			context.fillRect(j*(blocks.width+blocks.padding),i*(blocks.height+blocks.padding),blocks.width,blocks.height);
+
+
+ 			context.closePath();
+ 		}
+ 	}
+ }
+}
+
+ 
+ var blocks = new Blocks((canvas.width/20)-2, 20, 6, 20);
+ blocks.obj1 = [];
+ for(var i=0; i<blocks.rows;i++){
+ 	blocks.obj1[i]=[];
+ 	for(var j=0;j<blocks.cols;j++){
+ 		blocks.obj1[i][j]=1;
+ 	}
+ }
+
+
+ var randomNumber = function(min, max) {
+ 	return Math.floor(Math.random() * (max - min) + min);//случайное целое между 
+ 	                                                     // минимумом и максимумом
+		};
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+	function Raket(rx, ry) {
+			this.rx = rx;
+			this.ry = ry;
+			this.x = canvas.width/100- rx/100;
+			this.y = canvas.height - ry-10;
+
+		}
+
+		Raket.prototype.draw = function() {
+
+			context.beginPath();
+		    context.lineWidth = 6;
+		    context.strokeStyle = 'black';
+		    context.fillStyle = 'green';
+		    context.lineJoin ='round';
+			context.strokeRect(this.x,this.y,this.rx,this.ry);
+			context.fillRect(this.x,this.y,this.rx,this.ry)				
+		};
+
+		
+		var rak = new Raket(100, 4);
+
+		canvas.addEventListener('mousemove',
+		function(event) {
+			
+			if((event.offsetX - rak.rx/2>0)&&(event.offsetX + rak.rx/2<canvas.width))
+            rak.x = event.offsetX - rak.rx/2;
+
+		},false);
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+function Vector(x, y) {
+   this.x = x;
+   this.y = y;
+};
+
+Vector.prototype.length = function() { // длина вектора
+	return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
+};
+
+Vector.prototype.multiply = function(s) {//умножение вектора на число (s - скаляр)
+    return new Vector(this.x*s,this.y*s);
+};
+
+Vector.prototype.sum = function(v) { //сумма (принимает вектор)
+	this.x = this.x + v.x;
+	this.y = this.y + v.y;
+	return this;
+};
+
+Vector.prototype.normalize = function() { // нормализация вектора (каждую координату делим на длину)
+var z = this.length();
+this.x = this.x/z;
+this.y = this.y/z;
+return this;
+};
+
+Vector.prototype.dot = function(v){ // скалярное произведение векторов
+this.x*v.x + this.y*v.y;
+return this.x*v.x + this.y*v.y;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+ function Ball(x, y, vx, vy) {
+			this.p = new Vector(x, y);
+			this.v = new Vector(vx, vy);
+			this.r = 10;
+
+			this.m = 10;
+			this.cr = 1;
+		}
+
+		Ball.prototype.draw = function() {
+			context.beginPath();
+			context.lineWidth = 5;
+			context.strokeStyle = this.color;
+			context.arc(
+				this.p.x, this.p.y, this.r, 
+				0, 2 * Math.PI, false
+			);
+			context.fill();
+			context.stroke();			
+		}
+
+		Ball.prototype.move = function() {
+			this.p = this.p.sum(this.v);
+		}
+
+		Ball.prototype.bounce = function() {//физика с границами экрана
+			if (this.p.x < this.r || this.p.x > canvas.width - this.r) {
+				this.v.x = -this.v.x;
+			}
+
+			if (this.p.y < this.r){
+                this.v.y = -this.v.y;
+			}
+
+			else if ((this.p.y + this.r >= canvas.height - rak.ry - 5) && (this.p.y + this.r < canvas.height))
+			{
+				if((this.p.x + this.r >= rak.x) && (this.p.x + this.r <= rak.x + rak.rx)){
+
+					this.v.y = -this.v.y;
+					this.v.x =0.4*(this.v.x - (rak.x + rak.rx/2))/rak.rx;// ускорение по ох
+				}
+			}
+		}
+
+		Ball.prototype.collide = function(obj) {
+			var dn = new Vector(this.p.x - obj.p.x, this.p.y - obj.p.y);
+			var sr = this.r + obj.r;
+			var dx = dn.length();
+
+			if (dx > sr) {
+				return; // Столкновения нет.
+			}
+
+			sm = this.m + obj.m;
+			dn.normalize();
+			var dt = new Vector(dn.y, -dn.x);
+
+			var mT = dn.multiply(this.r + obj.r - dx);
+			this.p.sum(mT.multiply(obj.m / sm));
+			this.p.sum(mT.multiply(-this.m / sm));
+
+			cr = Math.min(this.cr, obj.cr);
+
+			var v1 = dn.multiply(this.v.dot(dn)).length();
+			var v2 = dn.multiply(obj.v.dot(dn)).length();
+
+			this.v = dt.multiply(this.v.dot(dt));
+			this.v.sum(dn.multiply((cr * obj.m * (v2 - v1) + this.m * v1 + obj.m * v2) / sm));
+
+			obj.v = dt.multiply(obj.v.dot(dt));
+			obj.v.sum(dn.multiply((cr * this.m * (v1 - v2) + obj.m * v2 + this.m * v1) / sm));
+		}
+
+	
+
+		ball  = new Ball(canvas.width/2,canvas.height/2,1,1);
+
+			for (var i = 1; i <= circlesCount; i++) 
+			for(var j=0;j<6;j++)
+			for(var k=0;k<20;k++)
+			{
+			if(randomNumber(0,50)==1)
+			circles.push(new Ball(
+				x1/2 + k*x1,
+				y1/2 + j*y1,
+				randomNumber(0, 0),
+				randomNumber(0, 0)
+			));
+			}
+		
+
+		setInterval(function() {
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			for (var i = 0; i < circles.length; i++) {
+				circles[i].bounce();
+
+				ball.bounce();
+
+				 //Отслеживаем столкновения.
+				/*for (var j = 0; j < circles.length; j++) {
+					if (j != i) {
+						circles[i].collide(circles[j]);
+						ball.collide(circles[j]);
+
+					}
+				}*/
+
+				//circles[i].move();
+
+				rak.draw();
+				//blocks.draw();
+				ball.draw();
+				ball.move();
+				circles[i].draw();
+			}
+		}, 60);
+
+
+</script>
+ </body>
+ </html>
