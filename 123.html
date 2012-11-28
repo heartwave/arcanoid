@@ -174,7 +174,7 @@ function beginGame(){
 			var dx = dn.length();
 
 			if (dx > sr) {
-				return; // Столкновения нет.
+				return false; // Столкновения нет.
 			}
 
 			sm = this.m + obj.m;
@@ -195,6 +195,8 @@ function beginGame(){
 
 			obj.v = dt.multiply(obj.v.dot(dt));
 			obj.v.sum(dn.multiply((cr * this.m * (v1 - v2) + obj.m * v2 + this.m * v1) / sm));
+			
+			return true;
 		}
 
 			for (var i = 1; i <= 8; i++){ 
@@ -220,34 +222,43 @@ function beginGame(){
 
 		setInterval(function() {
 			context.clearRect(0, 0, canvas.width, canvas.height);
+			
+/**
+ * Двигаем подвижный шар.
+ **/
+ball.move();
 
-			for (var i = 0; i < circles.length; i++) {
-				circles[i].bounce();
+/**
+ * Проходим по всем шарам и проверяем не произошло ли столкновения.
+ **/
+for (var i = 0; i < circles.length; i++) {
+	/**
+	 * Если произошло столкновение (см. изменение в .collide) —
+	 * удаляем неподвижный шар.
+	 **/
+	if (ball.collide(circles[i])) {
+		circles.splice(i, 1);	
+	}
+}
 
-				
+/**
+ * Проверяем движущийся шар на столкновение со стенкой.
+ **/
+ ball.bounce();
+ 
+/**
+ * Рисуем все шары только тогда, когда мы проверили всё 
+ * на столкновение и удалили ненужные.
+ **/
+for (var i = 0; i < circles.length; i++) {
+	circles[i].draw();
+}
 
-				 //Отслеживаем столкновения.
-				for (var j = 0; j < circles.length; j++) {
-					if (j != i) {
-
-						circles[i].collide(circles[j]);
-						ball.collide(circles[j]);
-
-					
-					}
-
-					 
-				}
-
-				//circles[i].move();
-
-				
-				circles[i].draw();
-			}
-                rak.draw();
-			    ball.bounce();
-			    ball.draw();
-				ball.move();
+/**
+ * Рисуем движущийся шар и ракетку.
+ **/
+ball.draw();
+rak.draw();
 
 		}, 20);
 	}
