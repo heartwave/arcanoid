@@ -4,10 +4,10 @@
   <title>Super_Ball</title>
   <meta charset="utf-8">
   <style>
-  canvas {
-  	border: 1px solid black;
-  	}
-  	</style>
+		canvas {
+			border: 1px solid black;
+		}
+	</style>
 
  </head> 
  <body>
@@ -18,7 +18,7 @@
 
  var canvas = document.getElementById('Balls');
  var context = canvas.getContext('2d');
- context.font = "30px Arial";
+ context.font = "40px Arial";
 		
  
  var circles = [];
@@ -26,15 +26,13 @@
  var x1=50;
  var y1=50;
  var bg = new Image();
- var game = 1;
+
 
 
 
 function background(){
-	
 	bg.src = "bg.jpg";
 	context.drawImage(bg,0,0,context.width,context.height);
-
 }
 
 
@@ -69,17 +67,19 @@ canvas.addEventListener('mousemove',
 
 },false);
 
+
 function Vector(x, y) {
 	this.x = x;
 	this.y = y;
 };
 
 Vector.prototype.length = function() {
-return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
+
+	return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
 };
 
 Vector.prototype.multiply = function(s) {//умножение вектора на число (s - скаляр)
-return new Vector(this.x*s,this.y*s);
+    return new Vector(this.x*s,this.y*s);
 };
 
 Vector.prototype.sum = function(v) { //сумма (принимает вектор)
@@ -101,6 +101,7 @@ return this.x*v.x + this.y*v.y;
 };
 
 
+
 function Ball(x, y, vx, vy) {
 	this.p = new Vector(x, y);
 	this.v = new Vector(vx, vy);
@@ -119,18 +120,15 @@ Ball.prototype.draw = function() {
 	context.stroke();	
 }
 
-beginGame();
-
-function beginGame(){
 	
-	if(game==1){
-		
-		
+
+
+
 		Ball.prototype.move = function() {
 			this.p = this.p.sum(this.v);
 		}
 
-		Ball.prototype.bounce = function() {//физика с границами экрана
+		Ball.prototype.bounce = function() { //физика с границами экрана
 			if (this.p.x < this.r || this.p.x > canvas.width - this.r) {
 				this.v.x = -this.v.x;
 			}
@@ -141,17 +139,27 @@ function beginGame(){
 
 			 else if ((this.p.y + this.r >= canvas.height - rak.ry - 10) && (this.p.y + this.r < canvas.height))
 			{
-				if((this.p.x + this.r >= rak.x) && (this.p.x + this.r <= rak.x + rak.rx)){
+						if((this.p.x + this.r >= rak.x) && (this.p.x + this.r <= rak.x + rak.rx)){
 
-					this.v.y = -this.v.y;
-					this.v.x =(this.v.x - (rak.x + rak.rx/2))/rak.rx;// ускорение по ох
-				}
+						this.v.y = -this.v.y;
+						this.v.x =(this.v.x - (rak.x + rak.rx/2))/rak.rx;// ускорение по ох
+						}
 
-				else{
-                       game = 0;
-				}
-			}
-		}
+						else{
+							clearInterval(setin);
+							var setin2 = setInterval(function() {
+
+							context.clearRect(0, 0, canvas.width, canvas.height);
+							background();
+							var text = 'Game Over';
+							context.fillStyle="black";
+							var text_length = context.measureText(text).width;
+							context.fillText(text,(canvas.width)/2-(text_length)/2,(canvas.height)/2-50);
+							},20);
+						}
+						
+					}
+	    }
 
 		Ball.prototype.collide = function(obj) {
 			var dn = new Vector(this.p.x - obj.p.x, this.p.y - obj.p.y);
@@ -205,48 +213,32 @@ ball  = new Ball(randomNumber(200, canvas.width - 200), // главный гер
 
 
 
-setInterval(function() {
-	context.clearRect(0, 0, canvas.width, canvas.height);
-	background();
+var setin = setInterval(function() {
 
-	ball.move(); // подвижный шар
+context.clearRect(0, 0, canvas.width, canvas.height);
+			
 
+		ball.move(); // подвижный шар
 
-for (var i=0; i<circles.length; i++){
-	if(ball.collide(circles[i])){
-		circles.splice(i,1);
+		for (var i=0; i<circles.length; i++){
+			if(ball.collide(circles[i])){
+				circles.splice(i,1);
+			}
 		}
+
+		ball.bounce();// столкновение со стенкой
+
+		for( var i=0; i<circles.length;i++){
+			circles[i].draw();
 		}
 
-ball.bounce();// столкновение со стенкой
+				ball.draw();
+				rak.draw();
+				background();
+		}, 20);
 
-
-for( var i=0; i<circles.length;i++){
-circles[i].draw();
-}
-
-ball.draw();
-rak.draw();
-background();
-}, 20);
-}
-
-if(game==0){
-
-	gameover();
-}
-} 
-
-function gameover(){
-	var text = 'Game Over';
-	context.clearRect(0,0,canvas.width,canvas.height);
-	background();
-	context.fillStyle="black";
-	var text_length = context.measureText(text).width;
-	context.fillText(text,(canvas.width)/2-(text_length)/2,(canvas.height)/2-50);
-}
-
-
+	
+	
 
 </script>
  </body>
