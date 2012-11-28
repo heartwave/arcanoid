@@ -12,7 +12,7 @@
  </head> 
  <body>
  <canvas id="Balls" width="600" height="600"></canvas>
-
+<img id="background" src="bg.jpg" style="display:none; width:100%;">
  <script>
 
 
@@ -25,20 +25,13 @@
  var circlesCount = 3;
  var x1=50;
  var y1=50;
- var bg = new Image();
-
-
-
-
-function background(){
-	bg.src = "bg.jpg";
-	context.drawImage(bg,0,0,context.width,context.height);
-}
 
 
 var randomNumber = function(min, max) {
  	return Math.floor(Math.random() * (max - min) + min);
  	}
+
+
 
 function Raket(rx, ry) {
 	this.rx = rx;
@@ -46,6 +39,7 @@ function Raket(rx, ry) {
 	this.x = canvas.width/100- rx/100;
 	this.y = canvas.height - ry-10;
 }
+
 
 Raket.prototype.draw = function() {
 	context.beginPath();
@@ -134,31 +128,35 @@ Ball.prototype.draw = function() {
 			}
 
 			if (this.p.y < this.r){
-				this.v.y = -this.v.y;
+                this.v.y = -this.v.y;
 			}
 
 			 else if ((this.p.y + this.r >= canvas.height - rak.ry - 10) && (this.p.y + this.r < canvas.height))
 			{
 						if((this.p.x + this.r >= rak.x) && (this.p.x + this.r <= rak.x + rak.rx)){
 
-						this.v.y = -this.v.y;
-						this.v.x =(this.v.x - (rak.x + rak.rx/2))/rak.rx;// ускорение по ох
+							this.v.y = -this.v.y;
+							this.v.x =(this.v.x - (rak.x + rak.rx/2))/rak.rx;// ускорение по ох
 						}
 
 						else{
+
 							clearInterval(setin);
 							var setin2 = setInterval(function() {
 
-							context.clearRect(0, 0, canvas.width, canvas.height);
-							background();
+								context.clearRect(0, 0, canvas.width, canvas.height);
+                            var image = document.getElementById('background');
+							context.drawImage(image, 0, 0);
+							
 							var text = 'Game Over';
-							context.fillStyle="black";
-							var text_length = context.measureText(text).width;
-							context.fillText(text,(canvas.width)/2-(text_length)/2,(canvas.height)/2-50);
-							},20);
-						}
-						
-					}
+	                		context.fillStyle="black";
+	                		var text_length = context.measureText(text).width;
+	                		context.fillText(text,(canvas.width)/2-(text_length)/2,(canvas.height)/2-50);
+	                		
+	                	},20);
+
+	                }
+	        }
 	    }
 
 		Ball.prototype.collide = function(obj) {
@@ -207,15 +205,17 @@ Ball.prototype.draw = function() {
 		}
 		
 
-ball  = new Ball(randomNumber(200, canvas.width - 200), // главный герой
+		ball  = new Ball(randomNumber(200, canvas.width - 200), // главный герой
 				randomNumber(200, canvas.height - 200),randomNumber(3, 5),
 				randomNumber(3, 5));
 
 
 
-var setin = setInterval(function() {
+		var setin = setInterval(function() {
 
-context.clearRect(0, 0, canvas.width, canvas.height);
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		var image = document.getElementById('background');
+                context.drawImage(image, 0, 0);
 			
 
 		ball.move(); // подвижный шар
