@@ -12,6 +12,7 @@
  </head> 
  <body>
  <canvas id="Balls" width="600" height="600"></canvas>
+
  <script>
 
 
@@ -29,7 +30,7 @@
 
 
 
-	function background(){
+function background(){
 
 	bg.src = "bg.jpg";
 	context.drawImage(bg,0,0,context.width,context.height);
@@ -37,52 +38,48 @@
 }
 
 
- var randomNumber = function(min, max) {
- 	return Math.floor(Math.random() * (max - min) + min);//случайное целое между 
- 	                                                     // минимумом и максимумом
-		};
+var randomNumber = function(min, max) {
+ 	return Math.floor(Math.random() * (max - min) + min);
+ 	}
 
 
-////////////////////     РАКЕТКА      /////////////////////////////////////////////////////////////////////
 
-	function Raket(rx, ry) {
-			this.rx = rx;
-			this.ry = ry;
-			this.x = canvas.width/100- rx/100;
-			this.y = canvas.height - ry-10;
+function Raket(rx, ry) {
+	this.rx = rx;
+	this.ry = ry;
+	this.x = canvas.width/100- rx/100;
+	this.y = canvas.height - ry-10;
+}
 
-		}
 
-		Raket.prototype.draw = function() {
-
-			context.beginPath();
-		    context.lineWidth = 6;
-		    context.strokeStyle = 'black';
-		    context.fillStyle = 'green';
-		    context.lineJoin ='round';
-			context.strokeRect(this.x,this.y,this.rx,this.ry);
-			context.fillRect(this.x,this.y,this.rx,this.ry)				
-		};
-
-		
-		var rak = new Raket(100, 4);
-
-		canvas.addEventListener('mousemove',
-		function(event) {
-			
-			if((event.offsetX - rak.rx/2>0)&&(event.offsetX + rak.rx/2<canvas.width)) // взаимодействие с границами
-            rak.x = event.offsetX - rak.rx/2;
-
-		},false);
-
-//////////////////////////////////////////////////////////////////////////////////////////
-
-function Vector(x, y) {
-   this.x = x;
-   this.y = y;
+Raket.prototype.draw = function() {
+	context.beginPath();
+	context.lineWidth = 5;
+	context.strokeStyle = 'black';
+	context.fillStyle = 'green';
+	context.lineJoin ='round';
+	context.strokeRect(this.x,this.y,this.rx,this.ry);
+	context.fillRect(this.x,this.y,this.rx,this.ry)
 };
 
-Vector.prototype.length = function() { // длина вектора
+var rak = new Raket(100, 4);
+
+canvas.addEventListener('mousemove', 
+	function(event) {
+
+		if((event.offsetX - rak.rx/2>0)&&(event.offsetX + rak.rx/2<canvas.width)) // взаимодействие с границами
+	 	rak.x = event.offsetX - rak.rx/2;
+
+},false);
+
+
+function Vector(x, y) {
+	this.x = x;
+	this.y = y;
+};
+
+Vector.prototype.length = function() {
+
 	return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
 };
 
@@ -108,29 +105,25 @@ this.x*v.x + this.y*v.y;
 return this.x*v.x + this.y*v.y;
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////
-	
 
- function Ball(x, y, vx, vy) {
-			this.p = new Vector(x, y);
-			this.v = new Vector(vx, vy);
-			this.r = 10;
 
-			this.m = 10;
-			this.cr = 1;
-		}
+function Ball(x, y, vx, vy) {
+	this.p = new Vector(x, y);
+	this.v = new Vector(vx, vy);
+	this.r = 10;
 
-		Ball.prototype.draw = function() {
-			context.beginPath();
-			context.lineWidth = 3;
-			context.strokeStyle = this.color;
-			context.arc(
-				this.p.x, this.p.y, this.r, 
-				0, 2 * Math.PI, false
-			);
-			context.fill();
-			context.stroke();	
-		}
+	this.m = 10;
+	this.cr = 1;
+}
+
+Ball.prototype.draw = function() {
+	context.beginPath();
+	context.lineWidth = 3;
+	context.strokeStyle = this.color;
+	context.arc(this.p.x, this.p.y, this.r, 0, 2 * Math.PI, false);
+	context.fill();
+	context.stroke();	
+}
 
 		beginGame();
 
@@ -174,7 +167,7 @@ function beginGame(){
 			var dx = dn.length();
 
 			if (dx > sr) {
-				return; // Столкновения нет.
+				return false; // Столкновения нет.
 			}
 
 			sm = this.m + obj.m;
@@ -195,6 +188,8 @@ function beginGame(){
 
 			obj.v = dt.multiply(obj.v.dot(dt));
 			obj.v.sum(dn.multiply((cr * this.m * (v1 - v2) + obj.m * v2 + this.m * v1) / sm));
+
+			return true;
 		}
 
 			for (var i = 1; i <= 8; i++){ 
@@ -219,36 +214,27 @@ function beginGame(){
 
 
 		setInterval(function() {
+
 			context.clearRect(0, 0, canvas.width, canvas.height);
+			background();
 
-			for (var i = 0; i < circles.length; i++) {
-				circles[i].bounce();
+		ball.move(); // подвижный шар
 
-				
-
-				 //Отслеживаем столкновения.
-				for (var j = 0; j < circles.length; j++) {
-					if (j != i) {
-
-						circles[i].collide(circles[j]);
-						ball.collide(circles[j]);
-
-					
-					}
-
-					 
-				}
-
-				//circles[i].move();
-
-				
-				circles[i].draw();
+		for (var i=0; i<circles.length; i++){
+			if(ball.collide(circles[i])){
+				circles.splice(i,1);
 			}
-                rak.draw();
-			    ball.bounce();
-			    ball.draw();
-				ball.move();
+		}
 
+		ball.bounce();// столкновение со стенкой
+
+		for( var i=0; i<circles.length;i++){
+			circles[i].draw();
+		}
+
+				ball.draw();
+				rak.draw();
+				background();
 		}, 20);
 	}
 
