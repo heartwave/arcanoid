@@ -4,10 +4,10 @@
   <title>Super_Ball</title>
   <meta charset="utf-8">
   <style>
-		canvas {
-			border: 1px solid black;
-		}
-	</style>
+  canvas {
+  	border: 1px solid black;
+  	}
+  	</style>
 
  </head> 
  <body>
@@ -31,7 +31,7 @@
 
 
 function background(){
-
+	
 	bg.src = "bg.jpg";
 	context.drawImage(bg,0,0,context.width,context.height);
 
@@ -42,15 +42,12 @@ var randomNumber = function(min, max) {
  	return Math.floor(Math.random() * (max - min) + min);
  	}
 
-
-
 function Raket(rx, ry) {
 	this.rx = rx;
 	this.ry = ry;
 	this.x = canvas.width/100- rx/100;
 	this.y = canvas.height - ry-10;
 }
-
 
 Raket.prototype.draw = function() {
 	context.beginPath();
@@ -72,19 +69,17 @@ canvas.addEventListener('mousemove',
 
 },false);
 
-
 function Vector(x, y) {
 	this.x = x;
 	this.y = y;
 };
 
 Vector.prototype.length = function() {
-
-	return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
+return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
 };
 
 Vector.prototype.multiply = function(s) {//умножение вектора на число (s - скаляр)
-    return new Vector(this.x*s,this.y*s);
+return new Vector(this.x*s,this.y*s);
 };
 
 Vector.prototype.sum = function(v) { //сумма (принимает вектор)
@@ -106,7 +101,6 @@ return this.x*v.x + this.y*v.y;
 };
 
 
-
 function Ball(x, y, vx, vy) {
 	this.p = new Vector(x, y);
 	this.v = new Vector(vx, vy);
@@ -125,15 +119,13 @@ Ball.prototype.draw = function() {
 	context.stroke();	
 }
 
-		beginGame();
+beginGame();
 
 function beginGame(){
-
-
-			if(game==1){
-
-
-
+	
+	if(game==1){
+		
+		
 		Ball.prototype.move = function() {
 			this.p = this.p.sum(this.v);
 		}
@@ -144,7 +136,7 @@ function beginGame(){
 			}
 
 			if (this.p.y < this.r){
-                this.v.y = -this.v.y;
+				this.v.y = -this.v.y;
 			}
 
 			 else if ((this.p.y + this.r >= canvas.height - rak.ry - 10) && (this.p.y + this.r < canvas.height))
@@ -207,36 +199,37 @@ function beginGame(){
 		}
 		
 
-		ball  = new Ball(randomNumber(200, canvas.width - 200), // главный герой
+ball  = new Ball(randomNumber(200, canvas.width - 200), // главный герой
 				randomNumber(200, canvas.height - 200),randomNumber(3, 5),
 				randomNumber(3, 5));
 
 
 
-		setInterval(function() {
+setInterval(function() {
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	background();
 
-			context.clearRect(0, 0, canvas.width, canvas.height);
-			background();
+	ball.move(); // подвижный шар
 
-		ball.move(); // подвижный шар
 
-		for (var i=0; i<circles.length; i++){
-			if(ball.collide(circles[i])){
-				circles.splice(i,1);
-			}
+for (var i=0; i<circles.length; i++){
+	if(ball.collide(circles[i])){
+		circles.splice(i,1);
+		}
 		}
 
-		ball.bounce();// столкновение со стенкой
+ball.bounce();// столкновение со стенкой
 
-		for( var i=0; i<circles.length;i++){
-			circles[i].draw();
-		}
 
-				ball.draw();
-				rak.draw();
-				background();
-		}, 20);
-	}
+for( var i=0; i<circles.length;i++){
+circles[i].draw();
+}
+
+ball.draw();
+rak.draw();
+background();
+}, 20);
+}
 
 if(game==0){
 
